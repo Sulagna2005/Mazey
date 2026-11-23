@@ -7,22 +7,83 @@ from algorithms.astar import astar
 from data.maze_generator import generate_solvable_maze
 
 
+def extract_maze_features(grid):
+    """Extract structural features available before solving."""
+
+    rows = len(grid)
+    cols = len(grid[0])
+
+    walkable_cells = 0
+    dead_ends = 0
+    junctions = 0
+    total_connectivity = 0
+
+    directions = [
+        (-1, 0),
+        (1, 0),
+        (0, -1),
+        (0, 1)
+    ]
+
+    for r in range(rows):
+        for c in range(cols):
+
+            if grid[r][c] == 1:
+                continue
+
+            walkable_cells += 1
+            neighbors = 0
+
+            for dr, dc in directions:
+                nr = r + dr
+                nc = c + dc
+
+                if (
+                    0 <= nr < rows
+                    and 0 <= nc < cols
+                    and grid[nr][nc] == 0
+                ):
+                    neighbors += 1
+
+            total_connectivity += neighbors
+
+            if neighbors == 1:
+                dead_ends += 1
+
+            if neighbors >= 3:
+                junctions += 1
+
+    if walkable_cells == 0:
+        return {
+            "dead_end_ratio": 0,
+            "average_connectivity": 0,
+            "junction_ratio": 0
+        }
+
+    return {
+        "dead_end_ratio": dead_ends / walkable_cells,
+        "average_connectivity": total_connectivity / walkable_cells,
+        "junction_ratio": junctions / walkable_cells
+    }
+
 def calculate_difficulty(
     obstacle_density,
-    path_stretch,
-    exploration_ratio
+    dead_end_ratio,
+    average_connectivity,
+    junction_ratio
 ):
-    """Classify maze difficulty using a scoring rule."""
+    """Classify maze difficulty using pre-solve features."""
 
     score = (
-        0.40 * obstacle_density
-        + 0.35 * min(path_stretch / 3, 1)
-        + 0.25 * exploration_ratio
+        0.35 * obstacle_density
+        + 0.30 * dead_end_ratio
+        + 0.20 * (1 - average_connectivity / 4)
+        + 0.15 * (1 - junction_ratio)
     )
 
-    if score < 0.332:
+    if score < 0.1564:
         return "Easy"
-    elif score < 0.354:
+    elif score < 0.2335:
         return "Medium"
     else:
         return "Hard"
@@ -63,6 +124,7 @@ def generate_dataset(number_of_mazes=1000):
         )
 
         obstacle_density = wall_count / total_cells
+        maze_features = extract_maze_features(grid)
 
         path_length = len(path) - 1
 
@@ -82,14 +144,26 @@ def generate_dataset(number_of_mazes=1000):
 
         difficulty = calculate_difficulty(
             obstacle_density,
-            path_stretch,
-            exploration_ratio
+            maze_features["dead_end_ratio"],
+            maze_features["average_connectivity"],
+            maze_features["junction_ratio"]
         )
 
         dataset.append({
             "rows": rows,
             "cols": cols,
             "obstacle_density": round(obstacle_density, 4),
+
+            "dead_end_ratio": round(
+                maze_features["dead_end_ratio"], 4
+            ),
+            "average_connectivity": round(
+                maze_features["average_connectivity"], 4
+            ),
+            "junction_ratio": round(
+                maze_features["junction_ratio"], 4
+            ),
+
             "path_length": path_length,
             "path_stretch": round(path_stretch, 4),
             "explored_nodes": explored_nodes,

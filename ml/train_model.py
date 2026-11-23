@@ -29,7 +29,10 @@ def train_model():
     features = [
         "rows",
         "cols",
-        "obstacle_density"
+        "obstacle_density",
+        "dead_end_ratio",
+        "average_connectivity",
+        "junction_ratio"
     ]
 
     target = "difficulty"
