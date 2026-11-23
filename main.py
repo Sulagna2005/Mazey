@@ -3,6 +3,7 @@ import time
 
 from algorithms.astar import astar
 from data.maze_generator import generate_solvable_maze
+from data.dataset_generator import extract_maze_features
 from ml.predict_difficulty import predict_difficulty
 
 
@@ -50,7 +51,7 @@ def main():
         obstacle_probability=obstacle_probability
     )
 
-    # 2. Calculate actual obstacle density
+    # 2. Calculate maze features before solving
     total_cells = rows * cols
 
     wall_count = sum(
@@ -61,11 +62,16 @@ def main():
 
     obstacle_density = wall_count / total_cells
 
+    maze_features = extract_maze_features(grid)
+
     # 3. Predict difficulty using ML
     difficulty = predict_difficulty(
         rows,
         cols,
-        obstacle_density
+        obstacle_density,
+        maze_features["dead_end_ratio"],
+        maze_features["average_connectivity"],
+        maze_features["junction_ratio"]
     )
 
     print(f"\nPredicted Difficulty: {difficulty}")
