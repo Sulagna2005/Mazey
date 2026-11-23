@@ -1,49 +1,59 @@
 # 🧩 Mazey – Smart Maze Solver
 
-**An intelligent maze-solving application powered by the A* Search Algorithm and Machine Learning.**
+**An interactive maze-solving application powered by the A* Search Algorithm and Machine Learning-based difficulty prediction.**
 
-Mazey is a Python-based maze-solving system designed to find the shortest path between a starting point and a destination while navigating through obstacles. It combines the A* Search Algorithm with a Machine Learning-based difficulty prediction system to provide an interactive and intelligent maze-solving experience.
+Mazey is a Python-based Smart Maze Solver that generates solvable mazes, predicts their difficulty using a Machine Learning model, and finds optimal paths using the A* Search Algorithm.
+
+It combines Artificial Intelligence, Machine Learning, and interactive visualization through a user-friendly Pygame interface.
 
 ---
 
-## 🎯 Project Objectives
+## ✨ Features
 
-- Implement the A* Search Algorithm to find optimal paths through mazes.
-- Use Manhattan Distance as the heuristic function.
-- Visualize maze exploration and shortest-path discovery.
-- Predict maze difficulty using a Machine Learning model.
-- Evaluate algorithm performance using standard evaluation metrics.
+### 1. 🧠 A* Pathfinding Algorithm
+- Finds the shortest path from the starting point to the goal.
+- Uses Manhattan Distance as its heuristic function.
+- Explores neighbouring cells while avoiding obstacles.
+- Detects unreachable destinations.
+- Supports step-by-step search visualization.
 
-## ✨ Key Features
+### 2. 🎮 Interactive Pygame Interface
+- Interactive graphical interface with a custom pastel-themed design.
+- Dynamic maze generation.
+- Adjustable maze rows and columns.
+- Adjustable obstacle density.
+- Animated maze generation and pathfinding.
+- Animated mascot that follows the solution path.
+- Visual representation of explored cells and the final path.
+- Real-time performance statistics.
 
-### 1. A* Pathfinding
-- Intelligent shortest-path search.
-- Manhattan Distance heuristic.
-- Obstacle detection and avoidance.
-- Exploration of neighbouring cells.
-- Detection of unreachable destinations.
+### 3. 🤖 Machine Learning-Based Difficulty Prediction
+- Generates synthetic maze datasets.
+- Extracts relevant maze characteristics.
+- Trains a Decision Tree classification model.
+- Predicts maze difficulty as:
+  - Easy
+  - Medium
+  - Hard
+- Predicts difficulty independently of the A* pathfinding algorithm.
 
-### 2. Interactive Maze Visualization
-- Graphical maze representation using Pygame.
-- Visual distinction between obstacles, explored cells and final paths.
-- Start and destination markers.
-- Interactive maze controls.
+### 4. 📊 Performance Evaluation
+The project evaluates both the pathfinding algorithm and the Machine Learning model.
 
-### 3. Machine Learning-Based Difficulty Prediction
-- Generate maze datasets.
-- Extract relevant maze features.
-- Train a Decision Tree classification model.
-- Classify mazes into Easy, Medium and Hard categories.
-
-### 4. Performance Evaluation
+**A* Evaluation Metrics**
 - Path Length
 - Execution Time
 - Nodes Explored
 - Path Validity
-- Model Accuracy
+- Path Optimality
+
+**Machine Learning Evaluation Metrics**
+- Accuracy
 - Precision
 - Recall
 - F1-Score
+- Confusion Matrix
+- Cross-Validation Accuracy
 
 ---
 
@@ -52,13 +62,15 @@ Mazey is a Python-based maze-solving system designed to find the shortest path b
 | Technology | Purpose |
 |---|---|
 | Python | Core development |
-| Pygame | Graphical visualization |
-| A* Search | Shortest-path algorithm |
+| Pygame | Graphical interface and visualization |
+| A* Search | Optimal pathfinding |
 | NumPy | Numerical operations |
 | Pandas | Dataset processing |
 | Scikit-learn | Machine Learning |
+| Joblib | Model serialization |
 | Matplotlib | Data visualization |
 | Git & GitHub | Version control and collaboration |
+| PyInstaller | Windows executable packaging |
 
 ---
 
@@ -71,23 +83,36 @@ Mazey/
 │   ├── __init__.py
 │   └── astar.py
 │
-├── ml/
+├── data/
+│   ├── maze_generator.py
 │   ├── dataset_generator.py
-│   ├── train_model.py
-│   └── predictor.py
+│   ├── maze_dataset.csv
+│   └── astar_evaluation_results.csv
+│
+├── evaluation/
+│   └── evaluate_astar.py
 │
 ├── interface/
 │   ├── __init__.py
-│   ├── grid.py
-│   └── buttons.py
+│   ├── app.py
+│   ├── components.py
+│   ├── maze_renderer.py
+│   ├── theme.py
+│   └── assets/
+│       ├── fonts/
+│       ├── mazey.ico
+│       ├── mazey_logo.png
+│       └── mazey_mascot.png
 │
-├── data/
+├── ml/
+│   ├── train_model.py
+│   ├── predict_difficulty.py
+│   └── difficulty_model.pkl
 │
 ├── tests/
 │   └── test_astar.py
 │
 ├── main.py
-├── config.py
 ├── requirements.txt
 ├── README.md
 └── .gitignore
@@ -102,7 +127,7 @@ Mazey/
 - Python 3.10 or above
 - pip package manager
 - Git
-- Visual Studio Code (recommended)
+- Windows, Linux, or macOS for running from source (platform-specific setup may be required)
 
 ### 1. Clone the Repository
 
@@ -124,92 +149,173 @@ python -m venv .venv
 
 ### 4. Activate the Virtual Environment
 
-**Windows:**
+**Windows PowerShell:**
 
-```bash
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+**Windows Command Prompt:**
+
+```cmd
 .venv\Scripts\activate
 ```
 
 ### 5. Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-### 6. Run the Application
+### 6. Launch the Graphical Application
+
+```bash
+python -m interface.app
+```
+
+### 7. Run the Command-Line Version
 
 ```bash
 python main.py
 ```
 
-*Note: Application execution instructions will be updated as development progresses.*
+---
+
+## 🎮 How to Use Mazey
+
+1. Launch the graphical application.
+2. Adjust the number of rows and columns to change the maze dimensions.
+3. Adjust obstacle density using the slider.
+4. Click **Generate Maze** to create a new solvable maze.
+5. View the predicted difficulty level.
+6. Click **Solve Maze** to start the A* search animation.
+7. Watch the mascot navigate the solution path.
+8. View the performance statistics displayed by the application.
+9. Use **Reset** or **Clear** to manage the current maze.
 
 ---
 
-## 🧠 How It Works
+## 🔍 How It Works
 
-### A* Search Algorithm
+### 1. Maze Generation
 
-Mazey uses the A* Search Algorithm to find the shortest path through a maze.
+Mazey generates random maze grids containing walkable cells and obstacles.
 
-It calculates the estimated total cost using:
+A solvability check ensures that a valid route exists between the starting point and the destination. If repeated random attempts fail, a fallback mechanism carves a guaranteed walkable route.
+
+### 2. A* Search Algorithm
+
+A* is an informed search algorithm that finds an optimal path by evaluating:
 
 **f(n) = g(n) + h(n)**
 
 Where:
 
 - `g(n)` = Actual cost from the starting point to the current node.
-- `h(n)` = Estimated cost from the current node to the destination.
+- `h(n)` = Estimated cost from the current node to the goal.
 - `f(n)` = Estimated total path cost.
 
-The Manhattan Distance heuristic is used:
+Mazey uses the Manhattan Distance heuristic:
 
 **h(n) = |x₁ - x₂| + |y₁ - y₂|**
 
-### Machine Learning Model
+The algorithm explores promising neighbouring cells until it reaches the destination or determines that no path exists.
 
-A separate Decision Tree classifier analyses maze characteristics, such as grid size and obstacle density, to predict maze difficulty.
+### 3. Machine Learning-Based Difficulty Prediction
 
-The ML component operates independently and does not modify the A* pathfinding algorithm.
+Mazey uses a Decision Tree classifier to predict the difficulty of generated mazes.
+
+The model uses features including:
+
+- Number of rows and columns
+- Obstacle density
+- Dead-end ratio
+- Average connectivity
+- Junction ratio
+
+The model classifies each maze into Easy, Medium, or Hard.
+
+**Important:** Machine Learning is used only for difficulty prediction. It does not replace or modify the A* pathfinding algorithm.
 
 ---
 
-## 📊 Evaluation Methodology
+## 📊 Model and Algorithm Evaluation
 
-The project will be evaluated through the following parameters:
+### A* Algorithm Evaluation
 
-**A* Algorithm Evaluation**
-- Path length
-- Execution time
-- Number of explored nodes
-- Path validity and optimality
+The A* implementation was tested on 100 generated solvable mazes.
 
-**Machine Learning Evaluation**
-- Accuracy
-- Precision
-- Recall
-- F1-Score
-- Confusion Matrix
+| Metric | Result |
+|---|---:|
+| Mazes Tested | 100 |
+| Successful Solutions | 100/100 |
+| Valid Paths | 100/100 |
+| Optimal Paths | 100/100 |
+| Average Path Length | 28.52 |
+| Average Nodes Explored | 119.54 |
+| Average Execution Time | ~0.40 ms |
+
+### Machine Learning Model Evaluation
+
+The Decision Tree classifier was evaluated using an 80:20 training and testing split.
+
+| Metric | Result |
+|---|---:|
+| Training Samples | 800 |
+| Testing Samples | 200 |
+| Test Accuracy | 91.00% |
+| Macro F1-Score | 91.11% |
+| 5-Fold Cross-Validation Accuracy | 94.40% ± 1.24% |
+
+*Note: Execution time and model evaluation results may vary depending on the environment and dataset.*
+
+---
+
+## 🖥️ Windows Application
+
+Mazey is also packaged as a standalone Windows application using PyInstaller.
+
+The packaged application includes the required Python dependencies, assets, fonts, and trained Machine Learning model.
+
+**To run the Windows application:**
+
+1. Download the Windows ZIP package from the repository's GitHub Releases page (when published).
+2. Extract the ZIP file.
+3. Open the extracted `Mazey` folder.
+4. Double-click `Mazey.exe`.
+
+No separate Python installation is required to run the packaged application.
+
+**Important:** Keep the complete extracted `Mazey` folder together. Do not move the executable away from its accompanying `_internal` folder.
 
 ---
 
 ## 👥 Team Collaboration
 
-Mazey is developed collaboratively using GitHub.
+Mazey is developed collaboratively using Git and GitHub.
 
-- **AI & Algorithm Development:** A* implementation, heuristic functions, ML model training and evaluation.
-- **Interface Development:** Pygame interface, grid visualization and user interactions.
-- **Integration:** Combining the algorithm, ML model and graphical interface.
+Development responsibilities include:
 
-Development is managed through separate Git branches and Pull Requests.
+- **AI and Algorithm Development:** A* implementation, heuristic functions, maze-solving logic, and algorithm evaluation.
+- **Machine Learning Development:** Dataset generation, feature extraction, model training, and difficulty prediction.
+- **Interface Development:** Pygame interface, maze visualization, animations, and user interactions.
+- **Integration:** Combining the pathfinding algorithm, Machine Learning model, and graphical interface.
+
+Development is managed through Git branches and Pull Requests.
 
 ---
 
 ## 🚀 Project Status
 
-**Currently Under Development**
+**Core application implemented and Windows build tested.**
 
-Features, evaluation results, screenshots and documentation will be updated as development progresses.
+Current capabilities include:
+- A* maze solving.
+- Machine Learning-based difficulty prediction.
+- Interactive Pygame interface.
+- Animated maze visualization.
+- Performance evaluation.
+- Standalone Windows application.
 
 ---
 
