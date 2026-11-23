@@ -14,10 +14,10 @@ def get_neighbors(position, grid):
     rows, cols = len(grid), len(grid[0])
 
     directions = [
-        (-1, 0),  # Up
-        (1, 0),   # Down
-        (0, -1),  # Left
-        (0, 1)    # Right
+        (-1, 0),
+        (1, 0),
+        (0, -1),
+        (0, 1)
     ]
 
     neighbors = []
@@ -25,9 +25,11 @@ def get_neighbors(position, grid):
     for dr, dc in directions:
         nr, nc = row + dr, col + dc
 
-        if (0 <= nr < rows and
-            0 <= nc < cols and
-            grid[nr][nc] == 0):
+        if (
+            0 <= nr < rows
+            and 0 <= nc < cols
+            and grid[nr][nc] == 0
+        ):
             neighbors.append((nr, nc))
 
     return neighbors
@@ -44,16 +46,14 @@ def reconstruct_path(came_from, current):
     return path[::-1]
 
 
-def astar(grid, start, goal):
+def astar_steps(grid, start, goal):
     """
-    A* Search Algorithm.
+    A* search generator.
 
-    0 = Walkable
-    1 = Obstacle
-
-    Returns:
-        path: Shortest path
-        explored: Nodes visited
+    Yields:
+        ("explore", position) for every expanded node.
+        ("complete", path) when the goal is reached.
+        ("failed", None) when no path exists.
     """
 
     if not grid or not grid[0]:
@@ -93,9 +93,9 @@ def astar(grid, start, goal):
     came_from = {}
     g_score = {start: 0}
     closed_set = set()
-    explored = []
 
     while open_list:
+
         _, _, current_g, current = heapq.heappop(open_list)
 
         if current in closed_set:
@@ -105,10 +105,14 @@ def astar(grid, start, goal):
             continue
 
         closed_set.add(current)
-        explored.append(current)
+
+        # Pause here so the GUI can animate this node.
+        yield ("explore", current)
 
         if current == goal:
-            return reconstruct_path(came_from, current), explored
+            path = reconstruct_path(came_from, current)
+            yield ("complete", path)
+            return
 
         for neighbor in get_neighbors(current, grid):
 
@@ -126,7 +130,34 @@ def astar(grid, start, goal):
 
                 heapq.heappush(
                     open_list,
-                    (f_score, next(counter), tentative_g, neighbor)
+                    (
+                        f_score,
+                        next(counter),
+                        tentative_g,
+                        neighbor
+                    )
                 )
+
+    yield ("failed", None)
+
+
+def astar(grid, start, goal):
+    """
+    Backward-compatible A* function.
+
+    Returns:
+        path: Shortest path.
+        explored: Nodes visited.
+    """
+
+    explored = []
+
+    for event, data in astar_steps(grid, start, goal):
+
+        if event == "explore":
+            explored.append(data)
+
+        elif event == "complete":
+            return data, explored
 
     return [], explored
